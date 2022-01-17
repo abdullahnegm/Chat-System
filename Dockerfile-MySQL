@@ -1,0 +1,5 @@
+FROM mysql
+
+RUN apt-get update && apt-get install -y curl
+
+HEALTHCHECK --interval=30s --retries=10 --timeout=10s CMD curl -f http://localhost:3307/

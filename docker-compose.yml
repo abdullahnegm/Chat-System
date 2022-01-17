@@ -1,0 +1,98 @@
+version: "3.9"
+services:
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.name=elasticsearch-rails"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  db:
+    # build: 
+    #   context: ./
+    #   dockerfile: Dockerfile-MySQL
+    image: respect1/db
+    environment:
+      MYSQL_ROOT_PASSWORD: "qazwsx123"
+      MYSQL_TCP_PORT: 3307
+    restart: unless-stopped
+    ports:
+      - 3307:3307
+
+  rabbitmq: 
+    # build: 
+    #   context: ./
+    #   dockerfile: Dockerfile-RabbitMQ
+    image: respect1/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    restart: unless-stopped
+    ports:
+      - 15672:15672
+      - 5672:5672
+
+  gateway:
+    image: respect1/gateway
+    command: > 
+      bash -c "rails db:create && rails db:schema:load && rm -f tmp/pids/server.pid && rails s -p 3003 -b '0.0.0.0'"
+    ports:
+      - "3003:3003"
+    depends_on:
+      db: 
+        condition: service_healthy
+      rabbitmq: 
+        condition: service_healthy
+
+  applications_service:
+    image: respect1/applications
+    command: > 
+      bash -c "rm -f tmp/pids/server.pid && (bundle exec rake sneakers:run QUEUE="*" --trace > rake.out 2>&1 &) && rails s -p 3000 -b '0.0.0.0'"
+    environment:
+      - WORKERS=ApplicationWorker
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq: 
+        condition: service_healthy
+
+  chats_service:
+    image: respect1/chats
+    command: > 
+      bash -c "rm -f tmp/pids/server.pid && (bundle exec rake sneakers:run QUEUE="*" --trace > rake.out 2>&1 &) && rails s -p 3001 -b '0.0.0.0'"
+    environment:
+      - WORKERS=ChatWorker
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq: 
+        condition: service_healthy
+
+  messages_service:
+    image: respect1/messages
+    command: > 
+      bash -c "rm -f tmp/pids/server.pid && (bundle exec rake sneakers:run QUEUE="*" --trace > rake.out 2>&1 &) && rails s -p 3002 -b '0.0.0.0'"
+    environment:
+      - WORKERS=MessageWorker
+    ports:
+      - "3002:3002"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq: 
+        condition: service_healthy
+
+
+  
