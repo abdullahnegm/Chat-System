@@ -19,7 +19,7 @@ services:
     # build: 
     #   context: ./
     #   dockerfile: Dockerfile-MySQL
-    image: respect1/db
+    image: respect1/mysql
     environment:
       MYSQL_ROOT_PASSWORD: "qazwsx123"
       MYSQL_TCP_PORT: 3307
