@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npx nx run-many:*)",
+      "Bash(npx nx run:*)",
+      "Bash(npm ls:*)",
+      "Bash(npx nx format:write:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx nx lint:*)",
+      "Bash(nx run:*)",
+      "Bash(npx nx show:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx nx test reports-profit-and-loss:*)",
+      "Bash(npx tsc:*)",
+      "Bash(cat:*)",
+      "Bash(./migrate.sh)",
+      "Bash(bash:*)"
+    ],
+    "deny": []
+  }
+}
