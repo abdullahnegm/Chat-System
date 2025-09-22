@@ -9,23 +9,46 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write   # <-- needs write to comment on PRs
       issues: read
       id-token: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: RUN Claude Code Review
+      # Load the prompt file into an output
+      - name: Load review prompt
+        id: load_prompt
+        run: |
+          echo "PROMPT<<'EOF'" >> $GITHUB_OUTPUT
+          cat .claude/commands/review-pr >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # Load extra system instructions (optional)
+      - name: Load system instructions
+        id: load_sys
+        run: |
+          echo "SYS<<'EOF'" >> $GITHUB_OUTPUT
+          cat CLAUDE.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Run Claude Code Review
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 
-          prompt: "/.claude/commands/review-pr"
-          append_system_prompt: "/CLAUDE.md"
-          claude_args: |
-            --allowedTools "mcp__github_inline_comment__create_inline_comment"
+          # Either pick "model" or "anthropic_model" depending on the action docs
+          # model: claude-3-5-sonnet-20241022
+          anthropic_model: claude-3-5-sonnet-20241022
+
+          direct_prompt: ${{ steps.load_prompt.outputs.PROMPT }}
+          custom_instructions: ${{ steps.load_sys.outputs.SYS }}
+
+          # Whitelist tools directly here (no --allowed_tools flags)
+          allowed_tools: |
+            mcp__github_inline_comment__create_inline_comment
 
           use_sticky_comment: true
