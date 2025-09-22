@@ -39,7 +39,7 @@ jobs:
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          anthropic_model: claude-3-5-sonnet-latest
+          anthropic_model: claude-opus-4-1-20250805
 
           direct_prompt: ${{ steps.load_content.outputs.PROMPT }}
           custom_instructions: ${{ steps.load_content.outputs.SYS }}
