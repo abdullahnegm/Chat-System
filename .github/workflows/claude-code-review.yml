@@ -23,17 +23,19 @@ jobs:
         id: load_prompt
         shell: bash
         run: |
-          echo "PROMPT<<__EOT_PROMPT__" >> "$GITHUB_OUTPUT"
+          delimiter="$(openssl rand -hex 16)"
+          echo "PROMPT<<$delimiter" >> "$GITHUB_OUTPUT"
           cat .claude/commands/review-pr.md >> "$GITHUB_OUTPUT"
-          echo "__EOT_PROMPT__" >> "$GITHUB_OUTPUT"
+          echo "$delimiter" >> "$GITHUB_OUTPUT"
 
       - name: Load system instructions
         id: load_sys
         shell: bash
         run: |
-          echo "SYS<<__EOT_SYS__" >> "$GITHUB_OUTPUT"
+          delimiter="$(openssl rand -hex 16)"
+          echo "SYS<<$delimiter" >> "$GITHUB_OUTPUT"
           cat CLAUDE.md >> "$GITHUB_OUTPUT"
-          echo "__EOT_SYS__" >> "$GITHUB_OUTPUT"
+          echo "$delimiter" >> "$GITHUB_OUTPUT"
 
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@beta
