@@ -28,14 +28,6 @@ jobs:
           cat CLAUDE.md >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      # Load extra system instructions (optional)
-      - name: Load system instructions
-        id: load_sys
-        run: |
-          echo "SYS<<'EOF'" >> $GITHUB_OUTPUT
-          cat CLAUDE.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@beta
         with:
