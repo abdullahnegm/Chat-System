@@ -19,15 +19,22 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Load review prompt and system instructions
-        id: load_content
-        shell: bash
-        run: |
-          # Load prompt
-          echo "PROMPT<<PROMPT_EOF" >> "$GITHUB_OUTPUT"
-          cat .claude/commands/review-pr.md >> "$GITHUB_OUTPUT"
-          echo "" >> "$GITHUB_OUTPUT"  # Ensure newline before delimiter
-          echo "PROMPT_EOF" >> "$GITHUB_OUTPUT"
+      # - name: Load review prompt and system instructions
+      #   id: load_content
+      #   shell: bash
+      #   run: |
+      #     # Load prompt
+      #     echo "PROMPT<<PROMPT_EOF" >> "$GITHUB_OUTPUT"
+      #     cat .claude/commands/review-pr.md >> "$GITHUB_OUTPUT"
+      #     echo "" >> "$GITHUB_OUTPUT"  # Ensure newline before delimiter
+      #     echo "PROMPT_EOF" >> "$GITHUB_OUTPUT"
+
+      #     # Load system instructions
+      #     echo "SYS<<SYS_EOF" >> "$GITHUB_OUTPUT"
+      #     cat CLAUDE.md >> "$GITHUB_OUTPUT"
+      #     echo "" >> "$GITHUB_OUTPUT"  # Ensure newline before delimiter
+      #     echo "SYS_EOF" >> "$GITHUB_OUTPUT"
+      #     custom_instructions: ${{ steps.load_content.outputs.SYS }}
 
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@beta
@@ -35,13 +42,20 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           anthropic_model: claude-opus-4-1-20250805
 
-          direct_prompt: ${{ steps.load_content.outputs.PROMPT }}
+          direct_prompt: |
+            Perform a comprehensive code review using subagents for key areas:
+            - code-quality-reviewer
+            - performance-reviewer
+            - test-coverage-reviewer
+            - documentation-accuracy-reviewer
+            - security-code-reviewer
 
-          # # Load system instructions
-          # echo "SYS<<SYS_EOF" >> "$GITHUB_OUTPUT"
-          # cat CLAUDE.md >> "$GITHUB_OUTPUT"
-          # echo "" >> "$GITHUB_OUTPUT"  # Ensure newline before delimiter
-          # echo "SYS_EOF" >> "$GITHUB_OUTPUT"
+            Instruct each to only provide noteworthy feedback. Once they finish, review the feedback and post only the feedback that you also deem noteworthy.
+
+            Provide feedback using inline comments for specific issues.
+            Use top-level comments for general observations or praise.
+            Keep feedback concise.
+          # direct_prompt: ${{ steps.load_content.outputs.PROMPT }}
           # custom_instructions: ${{ steps.load_content.outputs.SYS }}
 
           allowed_tools: |
