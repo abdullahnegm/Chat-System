@@ -14,18 +14,19 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      # Load the prompt file into an output
       - name: Load review prompt
         id: load_prompt
         run: |
-          echo "PROMPT<<'EOF'" >> $GITHUB_OUTPUT
-          cat .claude/commands/review-pr >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "PROMPT<<EOF" >> "$GITHUB_OUTPUT"
+          cat .claude/commands/review-pr >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Load system instructions
+        id: load_sys
+        run: |
+          echo "SYS<<EOF" >> "$GITHUB_OUTPUT"
+          cat CLAUDE.md >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       # Load extra system instructions (optional)
       - name: Load system instructions
