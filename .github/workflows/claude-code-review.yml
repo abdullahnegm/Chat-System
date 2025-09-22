@@ -18,7 +18,7 @@ jobs:
         id: load_prompt
         run: |
           echo "PROMPT<<EOF" >> "$GITHUB_OUTPUT"
-          cat .claude/commands/review-pr >> "$GITHUB_OUTPUT"
+          cat .claude/commands/review-pr.md >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Load system instructions
