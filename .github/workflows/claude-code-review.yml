@@ -19,23 +19,21 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Load review prompt
-        id: load_prompt
+      - name: Load review prompt and system instructions
+        id: load_content
         shell: bash
         run: |
-          delimiter="$(openssl rand -hex 16)"
-          echo "PROMPT<<$delimiter" >> "$GITHUB_OUTPUT"
+          # Load prompt
+          echo "PROMPT<<PROMPT_EOF" >> "$GITHUB_OUTPUT"
           cat .claude/commands/review-pr.md >> "$GITHUB_OUTPUT"
-          echo "$delimiter" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"  # Ensure newline before delimiter
+          echo "PROMPT_EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Load system instructions
-        id: load_sys
-        shell: bash
-        run: |
-          delimiter="$(openssl rand -hex 16)"
-          echo "SYS<<$delimiter" >> "$GITHUB_OUTPUT"
+          # Load system instructions
+          echo "SYS<<SYS_EOF" >> "$GITHUB_OUTPUT"
           cat CLAUDE.md >> "$GITHUB_OUTPUT"
-          echo "$delimiter" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"  # Ensure newline before delimiter
+          echo "SYS_EOF" >> "$GITHUB_OUTPUT"
 
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@beta
@@ -43,8 +41,8 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           anthropic_model: claude-3-5-sonnet-20241022
 
-          direct_prompt: ${{ steps.load_prompt.outputs.PROMPT }}
-          custom_instructions: ${{ steps.load_sys.outputs.SYS }}
+          direct_prompt: ${{ steps.load_content.outputs.PROMPT }}
+          custom_instructions: ${{ steps.load_content.outputs.SYS }}
 
           allowed_tools: |
             mcp__github_inline_comment__create_inline_comment
