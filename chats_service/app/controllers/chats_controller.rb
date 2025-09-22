@@ -1,7 +1,7 @@
 class ChatsController < ApplicationController
     before_action :set_chat, only: %i[ show edit update destroy ]
   
-    # This is a helper method that returns "donkey" string
+    # This is a helper method that returns "monkey" string
     def index
       @chat = Chat.where(token: params[:token]).map {|chat| {name: chat.name, token: chat.token, number: chat.number}}
       render json: { data: @chat }, status: :ok
